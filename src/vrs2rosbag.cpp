@@ -29,13 +29,13 @@ using namespace vrs;
 bool CALIB_WRITTEN = false;
 
 void printDataLayout(const CurrentRecord& r, DataLayout& datalayout) {
-  fmt::print(
-      "{:.3f} {} record, {} [{}]\n",
-      r.timestamp,
-      toString(r.recordType),
-      r.streamId.getName(),
-      r.streamId.getNumericName());
-  datalayout.printLayoutCompact(cout, "  ");
+  //fmt::print(
+  //    "{:.3f} {} record, {} [{}]\n",
+  //    r.timestamp,
+  //    toString(r.recordType),
+  //    r.streamId.getName(),
+  //    r.streamId.getNumericName());
+  //datalayout.printLayoutCompact(cout, "  ");
 }
 
 class AriaSensorRosbagWriter : public RecordFormatStreamPlayer {
@@ -57,14 +57,16 @@ public:
 
   bool onDataLayoutRead(const CurrentRecord& r, size_t blockIndex, DataLayout& dl) override {
 
+    // NOTE: will need to republish as raw for regular ROS usage as:
+    // rosrun image_transport republish compressed in:=/cam0_jpeg out:=/cam0
     if (r.streamId.getNumericName() == "1201-1") { // SLAM cam #1
-      topic = "/cam0/compressed";
+      topic = "/cam0_jpeg/compressed";
       frame_id = "cam0";
     } else if (r.streamId.getNumericName() == "1201-2") { // SLAM cam #2
-      topic = "/cam1/compressed";
+      topic = "/cam1_jpeg/compressed";
       frame_id = "cam1";
     } else if (r.streamId.getNumericName() == "214-1") { // RGB camera
-      topic = "/cam2_rgb/compressed";
+      topic = "/cam2_rgb_jpeg/compressed";
       frame_id = "cam2_rgb";
     } else {
       fmt::print(stderr, "AriaImageRosbagWriter: Unknown stream ID '{}'.\n", 
@@ -86,6 +88,7 @@ public:
         outfile << config.factoryCalibration.get() << std::endl;
         outfile.close();
         fmt::print("\nFactory calib written to file: {}\n", calib_write_path);
+        fmt::print("\nReading rest of data silently...\n");
       }
 
     } else if (r.recordType == Record::Type::DATA) {
@@ -104,6 +107,7 @@ public:
     // Synchronously read the image data, which is jpg compressed with Aria
     if (cb.image().getImageFormat() == ImageFormat::JPG && r.reader->read(frameBytes) == 0) {
       /// do your thing with the jpg data...
+      /*
       fmt::print(
           "{:.3f} {} [{}]: {}, {} bytes.\n",
           r.timestamp,
@@ -111,7 +115,7 @@ public:
           r.streamId.getNumericName(),
           imageSpec.asString(),
           imageSpec.getBlockSize());
-        
+      */
       assert(frame_id != "no_frame");
       assert(topic != "no_topic");
 

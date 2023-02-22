@@ -62,9 +62,9 @@ def convert(args):
 
     for calib in calib_json["CameraCalibrations"]:
         if calib["Label"] == "camera-slam-right":
-            cam_id = 0
-        elif calib["Label"] == "camera-slam-left":
             cam_id = 1
+        elif calib["Label"] == "camera-slam-left":
+            cam_id = 0
         #elif calib["Label"] == "camera-rgb":
         #    cam_id = "2_rgb"
         else:

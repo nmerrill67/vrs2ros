@@ -377,7 +377,7 @@ int convert_vrs2rosbag(const string& vrs_file, const string& rosbag,
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "vrs2rosbag");
-  ros::NodeHandle nh;
+  ros::NodeHandle nh("~");
 
   std::string vrs_file = "/media/nate/Elements/aria_pilot/everyday_activities/location_1_indoor/script_1/seq_1/recording_1/recording.vrs";
   nh.param<std::string>("vrs_file", vrs_file, vrs_file); 

@@ -35,9 +35,18 @@ def convert(args):
     imu_calib_yaml = {}
     imucam_calib_yaml = {}
     T_Device_Imu = np.eye(4)
+    T_Device_Imu_left = np.eye(4)
     T_Device_Camera = np.eye(4)
 
     for calib in calib_json["ImuCalibrations"]:
+        if calib["Label"] == "imu-left":
+            T_Device_Imu_left[:3,3] = calib["T_Device_Imu"]["Translation"]
+            qxyzw_Device_Imu_left = (
+                calib["T_Device_Imu"]["UnitQuaternion"][1] 
+                + [calib["T_Device_Imu"]["UnitQuaternion"][0]]
+            )
+            T_Device_Imu_left[:3,:3] = Rotation.from_quat(qxyzw_Device_Imu).as_matrix()
+
         # Only grab imu-right for now (IMU0)
         if calib["Label"] == "imu-right":
             T_Device_Imu[:3,3] = calib["T_Device_Imu"]["Translation"]
@@ -108,6 +117,10 @@ def convert(args):
     # We write two files, one for IMU, one for IMU-CAM
     write_yaml_opencv_style(os.path.join(args.outdir, "kalibr_imu_chain.yaml"), imu_calib_yaml)
     write_yaml_opencv_style(os.path.join(args.outdir, "kalibr_imucam_chain.yaml"), imucam_calib_yaml)
+
+    #print(T_Device_Imu)
+    #print(T_Device_Imu_left)
+    #print("T_Imu_right_left", np.linalg.inv(T_Device_Imu) @ T_Device_Imu_left)
 
 
 if __name__ == "__main__":

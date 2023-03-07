@@ -20,7 +20,12 @@ def convert_single(vrs_path):
     cmd = f"python3 scripts/calib_json_to_kalibr.py --json_path /tmp/calib.json --outdir {outdir}"
     print("Running command:", cmd)
     os.system(cmd)
-
+    # Convert the GT to OpenVINS format
+    gt_path = os.path.join(outdir, "location/trajectory.csv")
+    gt_out_path = os.path.join(outdir, "trajectory.txt")
+    cmd = f"python3 scripts/convert_gt.py --gt_path {gt_path} --out_path {gt_out_path}"
+    print("Running command:", cmd)
+    os.system(cmd)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -38,4 +43,4 @@ if __name__ == "__main__":
       r = list(tqdm(p.imap(convert_single, vrs_paths), total=len(vrs_paths), desc="Converting VRS files to rosbag..."))
     t1 = time()
 
-    print("Converted all VRS files in {(t1-t0)/60/60} hours")
+    print(f"Converted all VRS files in {(t1-t0)/60/60} hours")
